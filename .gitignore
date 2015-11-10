@@ -6,5 +6,5 @@
 # *~
 training-images/substation_*/*
 .idea/*
-test-*.py
-*.jpg
+test-*
+18697*
