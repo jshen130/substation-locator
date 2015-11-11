@@ -1,6 +1,9 @@
+__author__ = 'Carlos'
+
 import argparse
-import os
 import urllib2  # Documentation and examples: https://docs.python.org/2/howto/urllib2.html
+
+import os
 
 GMAPS_KEY = "AIzaSyBVATyH6TTwMyVhxAsmII7gbXAX0U3bRhY"   # Carlos' Google Maps API key
 MAP_X_SHIFT = 0.00085
