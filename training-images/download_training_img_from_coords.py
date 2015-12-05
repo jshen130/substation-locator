@@ -16,7 +16,7 @@ def parse_coords_file(file_name):
     return lines
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Download training images from a file with coordinates.')
     parser.add_argument('-file', type=str, default='coordinates_test.txt',
                        help='path to file that contains substation coordinates')
     parser.add_argument('-radius', type=int, default=0,

@@ -11,7 +11,7 @@ print "Start: " + str(datetime.datetime.now())
 
 img = cv2.imread("findLine-substation-3.png")
 img = cv2.imread("../training-images/substation_31/" + "substation_3_img72_y44.7725058_x-122.6746753_z20" + ".png")
-img = cv2.imread("../training-pos/" + "substation_4_img71_y45.6526422_x-122.4998221_z20" + ".png")
+img = cv2.imread("../training-pos/" + "substation_18_img49_y37.22573_x-121.74645_z20" + ".png")
 
 #edges = cv2.Canny(img, 100, 500)
 img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

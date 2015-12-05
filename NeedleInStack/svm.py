@@ -1,76 +1,66 @@
 __author__ = 'zhengyiwang'
-from sklearn import svm
-import numpy as np
 import cv2
-import features1
-from sklearn import preprocessing
+import numpy as np
+import os
+import featureExtraction
+from sklearn import svm
+from sklearn.externals import joblib
 
-import os, sys
 
 def allfeatures(img):
-    features = []
     img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #f1 = features1.meanHSV(img_HSV)
-    #features += list(f1)
-    f2 = features1.colorCube(img_HSV)
-    features += list(f2)
-    return features
+    return np.hstack((featureExtraction.colorCube(img_HSV), featureExtraction.getLineHist(img_HSV)))
 
-path = os.path.expanduser("~/Workshop/substation-locator/training-pos")
-dirs = os.listdir(path)
-path2 = os.path.expanduser("~/Workshop/substation-locator/training-neg")
-dirs2 = os.listdir(path2)
+def train_SVM(files_pos, files_neg):
+    training = np.empty((len(files_pos) + len(files_neg), len(allfeatures(cv2.imread(files_pos[0])))), dtype=int)
 
+    print "Obtaining features from " + str(len(files_pos)) + " positive training samples... "
+    cnt_total_pos = 0
+    for file in files_pos:
+        training[cnt_total_pos] = allfeatures(cv2.imread(file))
+        cnt_total_pos += 1
+        print str(cnt_total_pos) + ", ",
 
-training = []
+    print "\nObtaining features from " + str(len(files_neg)) + " negative training samples... "
+    cnt_total_neg = 0
+    for file in files_neg:
+        training[cnt_total_pos + cnt_total_neg] = allfeatures(cv2.imread(file))
+        cnt_total_neg += 1
+        print str(cnt_total_neg) + ", ",
 
+    print "\nTraining SVM..."
+    label = np.hstack((np.ones(cnt_total_pos), np.zeros(cnt_total_neg)))
+    trained_svm = svm.SVC(kernel='linear', C=1.0)
+    trained_svm.fit(training, label)
+    joblib.dump(trained_svm, trained_svm_filename)
+    print "SVM trained!! Model saved as: " + trained_svm_filename
 
-totalpositive = 0
-for file in dirs[1:-5]:
-    totalpositive += 1
-    img = cv2.imread(os.path.join(path,file))
-    features = allfeatures(img)
-
-    training.append(features)
-
-totalnegative = 0
-for file in dirs2[1:-20]:
-    totalnegative += 1
-    img = cv2.imread(os.path.join(path2,file))
-    features = allfeatures(img)
-
-    training.append(features)
-
-training = np.array(training)
-#training = preprocessing.scale(training)
-#print training
+    return trained_svm
 
 
+def test_SVM_training(trained_svm, files_pos, files_neg):
+    print("\nTesting positive samples--------")
+    for file in files_pos:
+        img = cv2.imread(file)
+        print file + "  is  " + str(trained_svm.predict(allfeatures(img).reshape((1, -1))))
 
-y = [1 for i in range(totalpositive)] + [0 for i in range(totalnegative)]
-#print y
-#print total
-clf = svm.SVC(kernel='linear', C = 1.0)
-clf.fit(training,y)
-
-
-
-
-print("testing positive samples--------")
-for file in dirs[-5:]:
-
-    img = cv2.imread(os.path.join(path,file))
-    features = allfeatures(img)
-
-    print(file + "  is  "+ str(clf.predict(features)))
-
-print("testing negative samples----------")
-for file in dirs2[-20:]:
-    img = cv2.imread(os.path.join(path2,file))
-    features = allfeatures(img)
-
-    print(file + "  is  "+ str(clf.predict(features)))
+    print("\nTesting negative samples--------")
+    for file in files_neg:
+        img = cv2.imread(file)
+        print file + "  is  " + str(trained_svm.predict(allfeatures(img).reshape((1, -1))))
 
 
+if __name__ == "__main__":
+    trained_svm_filename = "trained_svm.pkl"
+    path_pos = "../training-pos"
+    path_neg = "../training-neg"
+    files_pos = [os.path.join(path_pos, f) for f in os.listdir(path_pos)]
+    files_neg = [os.path.join(path_neg, f) for f in os.listdir(path_neg)]
+    n_test_pos = 5
+    n_test_neg = 20
 
-
+    if os.path.exists(trained_svm_filename):
+        print "Found a trained SVM saved as '" + trained_svm_filename + "'. Loading model!"
+        trained_svm = joblib.load(trained_svm_filename)
+    trained_svm = train_SVM(files_pos[1:-n_test_pos], files_neg[1:-n_test_neg])
+    test_SVM_training(trained_svm, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
