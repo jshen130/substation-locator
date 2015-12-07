@@ -3,16 +3,16 @@ import cv2
 import numpy as np
 import os
 import featureExtraction
-from sklearn import svm
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.externals import joblib
 import shutil
-import os
+
 
 def allfeatures(img):
     img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     return np.hstack((featureExtraction.colorCube(img_HSV), featureExtraction.getLineHist(img_HSV)))
 
-def train_SVM(files_pos, files_neg):
+def train_dt(files_pos, files_neg):
     training = np.empty((len(files_pos) + len(files_neg), len(allfeatures(cv2.imread(files_pos[0])))), dtype=int)
 
     print "Obtaining features from " + str(len(files_pos)) + " positive training samples... "
@@ -29,54 +29,54 @@ def train_SVM(files_pos, files_neg):
         cnt_total_neg += 1
         print str(cnt_total_neg) + ", ",
 
-    print "\nTraining SVM..."
+    print "\nTraining Decision Tree..."
     label = np.hstack((np.ones(cnt_total_pos), np.zeros(cnt_total_neg)))
-    trained_svm = svm.SVC(kernel='linear', C=1.0)
-    trained_svm.fit(training, label)
-    joblib.dump(trained_svm, trained_svm_filename)
-    print "SVM trained!! Model saved as: " + trained_svm_filename
+    trained_dt = DecisionTreeClassifier()
+    trained_dt.fit(training, label)
+    joblib.dump(trained_dt, trained_dt_filename)
+    print "Decision Tree trained!! Model saved as: " + trained_dt_filename
 
-    return trained_svm
+    return trained_dt
 
 
-def test_SVM_training(trained_svm, files_pos, files_neg):
+def test_dt_training(trained_DT, files_pos, files_neg):
     print("\nTesting positive samples--------")
     for file in files_pos:
         img = cv2.imread(file)
-        print file + "  is  " + str(trained_svm.predict(allfeatures(img).reshape((1, -1))))
+        print file + "  is  " + str(trained_DT.predict(allfeatures(img).reshape((1, -1))))
 
     print("\nTesting negative samples--------")
     for file in files_neg:
         img = cv2.imread(file)
-        print file + "  is  " + str(trained_svm.predict(allfeatures(img).reshape((1, -1))))
+        print file + "  is  " + str(trained_DT.predict(allfeatures(img).reshape((1, -1))))
 
 
-def test_sunnyvale(trained_svm, folder):
+def test_sunnyvale(trained_dt, folder):
     print "\nFinding substation for the SunnyVale...."
     for file in folder:
         img = cv2.imread(file)
-        result = trained_svm.predict(allfeatures(img).reshape((1, -1)))[0]
-        destination = os.path.expanduser("~/Workshop/find_substation/"+file[26:])
+        result = trained_dt.predict(allfeatures(img).reshape((1, -1)))[0]
+        destination = os.path.expanduser("~/Workshop/find_substation_dt"+file[26:])
         if result == 1:
             shutil.copyfile(file, destination)
             print file + "  is  positive"
 
 
 if __name__ == "__main__":
-    trained_svm_filename = "trained_svm.pkl"
+    trained_dt_filename = "trained_dt.pkl"
     path_pos = "../training-pos"
     path_neg = "../training-neg"
     path_sunnyvale = "../../sunnyvale_region_map"
     files_pos = [os.path.join(path_pos, f) for f in os.listdir(path_pos)]
     files_neg = [os.path.join(path_neg, f) for f in os.listdir(path_neg)]
     file_sunnyvale = [os.path.join(path_sunnyvale, f) for f in os.listdir(path_sunnyvale)]
-    n_test_pos = 5
-    n_test_neg = 5
+    n_test_pos = 0
+    n_test_neg = 0
 
-    if os.path.exists(trained_svm_filename):
-        print "Found a trained SVM saved as '" + trained_svm_filename + "'. Loading model!"
-        trained_svm = joblib.load(trained_svm_filename)
-    trained_svm = train_SVM(files_pos[1:-n_test_pos], files_neg[1:-n_test_neg])
-    #test_SVM_training(trained_svm, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
-    test_sunnyvale(trained_svm, file_sunnyvale)
+    if os.path.exists(trained_dt_filename):
+        print "Found a trained Decision Tree saved as '" + trained_dt_filename + "'. Loading model!"
+        trained_DT = joblib.load(trained_dt_filename)
+    trained_DT = train_dt(files_pos[1:-n_test_pos], files_neg[1:-n_test_neg])
+    #test_DT_training(trained_DT, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
+    test_sunnyvale(trained_DT, file_sunnyvale)
 
