@@ -1,1 +1,2 @@
 training-pos/substation_18_img49_y37.22573_x-121.74645_z20.png (looking at shades, no edges)
+http://www.jdl.ac.cn/user/xlchen/Paper/IVC06.pdf (research paper - spatial histogram)
