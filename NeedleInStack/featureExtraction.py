@@ -1,9 +1,15 @@
 import cv2
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+plt.ion()
+import plotly.plotly as py
+
+
 
 def colorCube(img_HSV):
-    return np.histogramdd(img_HSV.reshape((-1, 3)), bins=[4, 4, 4])[0].ravel().astype(int)
+    return np.histogramdd(img_HSV.reshape((-1, 3)), bins=[2, 2, 2])[0].ravel().astype(int)
 
     # n_h = 2
     # n_s = 2
@@ -33,7 +39,15 @@ def colorCube(img_HSV):
     # return CubeCountColor
 
 def meanHSV(img_HSV):
+
     return cv2.mean(img_HSV)
+
+def varianceOfColor(img_HSV):
+
+    v = np.var(img_HSV)
+    return v
+
+
 
 def getLineHist(img_HSV):
     nBins = 30
@@ -66,6 +80,16 @@ def getLineHist(img_HSV):
         return (np.histogram([math.degrees((-t+math.pi/2) % math.pi) for t in theta], bins=nBins, range=[0, 180])[0] >= 1).astype(int)
 
 if __name__ == "__main__":
-    img = cv2.imread("findLine-substation-2.png")
+
+    #py.sign_in('zhengyi', 'password')
+    img = cv2.imread("../training-pos/substation_9_img49_y37.32542_x-122.07663_z20.png")
+    img = cv2.imread("../training-neg/negative_20_y37.4958095484_x-121.839876843_z20.png")
     img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    print colorCube(img_HSV)
+
+    print varianceOfColor(img_HSV)
+    histogram = colorCube(img_HSV)
+    print histogram
+    plt.figure()
+    plt.hist(histogram,bins=64,range=np.array([0, 64]) )
+    cv2.imshow('Result', img)
+    cv2.waitKey(0)

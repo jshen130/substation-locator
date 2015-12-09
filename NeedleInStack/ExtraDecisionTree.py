@@ -61,15 +61,30 @@ def test_sunnyvale(trained_EDT, folder):
             shutil.copyfile(file, destination)
             print file + "  is  positive"
 
+def test_berkely(trained_EDT, folder):
+    berkely_positive_EDT = open("b_edt.txt", "w")
+    print "\nFinding substation for the SunnyVale...."
+    for file in folder:
+        img = cv2.imread(file)
+        result = trained_EDT.predict(allfeatures(img).reshape((1, -1)))[0]
+        destination = os.path.expanduser("~/Workshop/find_substation_svm/"+file[26:])
+        if result == 1:
+            #shutil.copyfile(file, destination)
+
+            print file + "  is  positive"
+            berkely_positive_EDT.write(file+"\n")
+    berkely_positive_EDT.close()
 
 if __name__ == "__main__":
     trained_edt_filename = "trained_edt.pkl"
     path_pos = "../training-pos"
     path_neg = "../training-neg"
     path_sunnyvale = "../../sunnyvale_region_map"
+    path_berkeley= "../../berkeley_region_map"
     files_pos = [os.path.join(path_pos, f) for f in os.listdir(path_pos)]
     files_neg = [os.path.join(path_neg, f) for f in os.listdir(path_neg)]
     file_sunnyvale = [os.path.join(path_sunnyvale, f) for f in os.listdir(path_sunnyvale)]
+    file_berkely = [os.path.join(path_berkeley, f) for f in os.listdir(path_berkeley)]
     n_test_pos = 1
     n_test_neg = 1
 
@@ -78,5 +93,6 @@ if __name__ == "__main__":
         trained_EDT = joblib.load(trained_edt_filename)
     trained_EDT = train_edt(files_pos[1:-n_test_pos], files_neg[1:-n_test_neg])
     #test_DT_training(trained_DT, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
-    test_sunnyvale(trained_EDT, file_sunnyvale)
+    #test_sunnyvale(trained_EDT, file_sunnyvale)
+    test_berkely(trained_EDT, file_berkely)
 

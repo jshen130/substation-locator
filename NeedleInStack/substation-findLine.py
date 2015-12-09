@@ -44,14 +44,14 @@ else:
         cnt += 1
         cv2.line(img, tuple(line[0:2]), tuple(line[2:4]), (0, 0, 255), 2)
 
-        # cv2.imshow('Result', np.hstack((img, cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB))))
-        # plt.hist2d([math.degrees(t) for t in theta], d, bins=30, range=np.array([[0, 180], [0, 700]]))
-        # if cnt == 1: plt.colorbar()
-        # cv2.waitKey(1000)
+        #cv2.imshow('Result', np.hstack((img, cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB))))
+        #plt.hist2d([math.degrees(t) for t in theta], d, bins=30, range=np.array([[0, 180], [0, 700]]))
+        #if cnt == 1: plt.colorbar()
+        #cv2.waitKey(1000)
 
-    plt.figure()
-    plt.hist2d([math.degrees((-t+math.pi/2) % math.pi) for t in theta], d, bins=30, range=np.array([[0, 180], [-600, 700]]))
-    plt.colorbar()
+    #plt.figure()
+    #plt.hist2d([math.degrees((-t+math.pi/2) % math.pi) for t in theta], d, bins=30, range=np.array([[0, 180], [-600, 700]]))
+    #plt.colorbar()
 
     plt.figure()
     plt.hist([math.degrees((-t+math.pi/2) % math.pi) for t in theta], bins=30, range=np.array([0, 180]))

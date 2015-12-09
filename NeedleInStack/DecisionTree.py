@@ -10,7 +10,7 @@ import shutil
 
 def allfeatures(img):
     img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    return np.hstack((featureExtraction.colorCube(img_HSV), featureExtraction.getLineHist(img_HSV)))
+    return np.hstack((featureExtraction.colorCube(img_HSV), featureExtraction.getLineHist(img_HSV),featureExtraction.varianceOfColor(img_HSV)))
 
 def train_dt(files_pos, files_neg):
     training = np.empty((len(files_pos) + len(files_neg), len(allfeatures(cv2.imread(files_pos[0])))), dtype=int)
@@ -61,17 +61,32 @@ def test_sunnyvale(trained_dt, folder):
             shutil.copyfile(file, destination)
             print file + "  is  positive"
 
+def test_berkely(trained_dt, folder):
+    berkely_positive_dt = open("b_dt.txt", "w")
+    print "\nFinding substation for the SunnyVale...."
+    for file in folder:
+        img = cv2.imread(file)
+        result = trained_dt.predict(allfeatures(img).reshape((1, -1)))[0]
+        destination = os.path.expanduser("~/Workshop/find_substation_svm/"+file[26:])
+        if result == 1:
+            #shutil.copyfile(file, destination)
+
+            print file + "  is  positive"
+            berkely_positive_dt.write(file+"\n")
+    berkely_positive_dt.close()
 
 if __name__ == "__main__":
     trained_dt_filename = "trained_dt.pkl"
     path_pos = "../training-pos"
     path_neg = "../training-neg"
     path_sunnyvale = "../../sunnyvale_region_map"
+    path_berkeley= "../../berkeley_region_map"
     files_pos = [os.path.join(path_pos, f) for f in os.listdir(path_pos)]
     files_neg = [os.path.join(path_neg, f) for f in os.listdir(path_neg)]
     file_sunnyvale = [os.path.join(path_sunnyvale, f) for f in os.listdir(path_sunnyvale)]
-    n_test_pos = 0
-    n_test_neg = 0
+    file_berkely = [os.path.join(path_berkeley, f) for f in os.listdir(path_berkeley)]
+    n_test_pos = 1
+    n_test_neg = 1
 
     if os.path.exists(trained_dt_filename):
         print "Found a trained Decision Tree saved as '" + trained_dt_filename + "'. Loading model!"
@@ -80,3 +95,4 @@ if __name__ == "__main__":
     #test_DT_training(trained_DT, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
     test_sunnyvale(trained_DT, file_sunnyvale)
 
+    #test_berkely(trained_DT, file_berkely)
