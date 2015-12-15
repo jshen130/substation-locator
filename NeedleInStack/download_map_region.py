@@ -31,6 +31,7 @@ if __name__ == "__main__":
                        help='label to identify this region')
     args = parser.parse_args()
     args.startY, args.startX = 37.693813, -122.512677
+    args.startY = 37.774993
     args.endY, args.endX = 37.832921, -122.357514
     args.prefix = "SF_region_map"
 
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     cnt_Y = int((args.endY - args.startY)/MAP_Y_SHIFT)
     print "%d tiles wide, %d tiles high" % (cnt_X, cnt_Y)
 
-    cnt_img = 0
+    cnt_img = 22509
     if not os.path.exists("../" + args.prefix):   # Make sure directory "../prefix" exists
         os.makedirs("../" + args.prefix)          # Otherwise create it
 

@@ -4,12 +4,12 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 plt.ion()
-import plotly.plotly as py
+plt.bar
 
 
 
 def colorCube(img_HSV):
-    return np.histogramdd(img_HSV.reshape((-1, 3)), bins=[2, 2, 2])[0].ravel().astype(int)
+    return np.histogramdd(img_HSV.reshape((-1, 3)), bins=[4, 4, 4], range=((0,179), (0,255), (0,255)))[0].ravel().astype(int)
 
     # n_h = 2
     # n_s = 2

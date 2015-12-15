@@ -53,41 +53,24 @@ def test_SVM_training(trained_svm, files_pos, files_neg):
 
 def test_sunnyvale(trained_svm, folder):
     print "\nFinding substation for the SunnyVale...."
-    for file in folder:
-        img = cv2.imread(file)
-        result = trained_svm.predict(allfeatures(img).reshape((1, -1)))[0]
-        destination = os.path.expanduser("~/Workshop/find_substation_svm/"+file[26:])
-        if result == 1:
-            shutil.copyfile(file, destination)
-            print file + "  is  positive"
+    with open("SF_svm_positives.txt", "w") as f:
+        for file in folder:
+            img = cv2.imread(file)
+            if trained_svm.predict(allfeatures(img).reshape((1, -1)))[0] == 1:
+                # destination = os.path.expanduser("~/Workshop/find_substation_svm/"+file[26:])
+                #shutil.copyfile(file, destination)
 
-
-def test_berkely(trained_svm, folder):
-    berkely_positive_svm = open("b_svm.txt", "w")
-    print "\nFinding substation for the SunnyVale...."
-    for file in folder:
-        img = cv2.imread(file)
-        result = trained_svm.predict(allfeatures(img).reshape((1, -1)))[0]
-        destination = os.path.expanduser("~/Workshop/find_substation_svm/"+file[26:])
-        if result == 1:
-            #shutil.copyfile(file, destination)
-
-            print file + "  is  positive"
-            berkely_positive_svm.write(file + "\n")
-    berkely_positive_svm.close()
+                print file + " is positive"
+                f.write(file + "\n")
 
 if __name__ == "__main__":
     trained_svm_filename = "trained_svm.pkl"
     path_pos = "../training-pos"
     path_neg = "../training-neg"
-    path_sunnyvale = "../../sunnyvale_region_map"
-    path_berkeley= "../../berkeley_region_map"
+    path_sunnyvale = "../SF_region_map"
     files_pos = [os.path.join(path_pos, f) for f in os.listdir(path_pos)]
     files_neg = [os.path.join(path_neg, f) for f in os.listdir(path_neg)]
     file_sunnyvale = [os.path.join(path_sunnyvale, f) for f in os.listdir(path_sunnyvale)]
-    file_berkely = [os.path.join(path_berkeley, f) for f in os.listdir(path_berkeley)]
-
-
     n_test_pos = 1
     n_test_neg = 1
 
@@ -96,6 +79,5 @@ if __name__ == "__main__":
         trained_svm = joblib.load(trained_svm_filename)
     trained_svm = train_SVM(files_pos[1:-n_test_pos], files_neg[1:-n_test_neg])
     #test_SVM_training(trained_svm, files_pos[-n_test_pos:], files_neg[-n_test_neg:])
-    #test_sunnyvale(trained_svm, file_sunnyvale)
-    test_berkely(trained_svm, file_berkely)
+    test_sunnyvale(trained_svm, file_sunnyvale)
 

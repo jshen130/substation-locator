@@ -12,6 +12,7 @@ print "Start: " + str(datetime.datetime.now())
 img = cv2.imread("findLine-substation-3.png")
 img = cv2.imread("../training-images/substation_31/" + "substation_3_img72_y44.7725058_x-122.6746753_z20" + ".png")
 img = cv2.imread("../training-pos/" + "substation_18_img49_y37.22573_x-121.74645_z20" + ".png")
+cv2.imwrite('example_in.jpg', img)
 
 #edges = cv2.Canny(img, 100, 500)
 img_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -21,8 +22,10 @@ if cv2.mean(img_HSV)[2] < 100:
 else:
     edges = cv2.inRange(img_HSV, np.array([0, 0, 0], np.uint8), np.array([180, 255, 100], np.uint8))
     # edges = cv2.inRange(img_HSV, np.array([0, 0, 160], np.uint8), np.array([180, 25, 255], np.uint8))
+cv2.imwrite('example_thresh.jpg', edges)
 
 edges = cv2.Canny(edges, 100, 500)
+cv2.imwrite('example_edges.jpg', edges)
 print "Edges detected: " + str(datetime.datetime.now())
 
 lines = cv2.HoughLinesP(edges, 1, np.pi/180, 75, minLineLength=250, maxLineGap=30)
@@ -49,9 +52,9 @@ else:
         #if cnt == 1: plt.colorbar()
         #cv2.waitKey(1000)
 
-    #plt.figure()
-    #plt.hist2d([math.degrees((-t+math.pi/2) % math.pi) for t in theta], d, bins=30, range=np.array([[0, 180], [-600, 700]]))
-    #plt.colorbar()
+    plt.figure()
+    plt.hist2d([math.degrees((-t+math.pi/2) % math.pi) for t in theta], d, bins=30, range=np.array([[0, 180], [-600, 700]]))
+    plt.colorbar()
 
     plt.figure()
     plt.hist([math.degrees((-t+math.pi/2) % math.pi) for t in theta], bins=30, range=np.array([0, 180]))
@@ -60,6 +63,5 @@ else:
 print "End: " + str(datetime.datetime.now())
 
 cv2.imshow('Result', np.hstack((img, cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB))))
-# cv2.imwrite('findLine-lines-3.jpg', img)
-# cv2.imwrite('findLine-edges-3.jpg', edges)
+cv2.imwrite('example_out.jpg', img)
 cv2.waitKey(0)
